@@ -21,6 +21,7 @@ import {
   isNotificationMessage,
 } from '@/types/message';
 import { cn } from '@/utils';
+import { useListToolOutputs } from '@/hooks/tools';
 
 type Props = {
   isStreaming: boolean;
@@ -71,6 +72,8 @@ const Content: React.FC<Props> = (props) => {
     citations: { hasCitations },
   } = useCitationsStore();
 
+  const { data: toolOutputs } = useListToolOutputs(props.conversationId, !!props.conversationId)
+
   useFixCopyBug();
   const [isAtBottom] = useSticky();
   const prevIsStreaming = usePrevious(isStreaming);
@@ -116,6 +119,7 @@ const Content: React.FC<Props> = (props) => {
       <div id={MESSAGE_LIST_CONTAINER_ID} className={cn('flex h-auto min-w-0 flex-1 flex-col')}>
         <Messages
           {...props}
+          toolOutputs={toolOutputs || []}
           ref={messageContainerDivRef}
           startOption={startOption}
           onStartOptionChange={onStartOptionChange}
@@ -166,12 +170,12 @@ const Content: React.FC<Props> = (props) => {
   );
 };
 
-type MessagesProps = Props & { welcomeMessageEnabled: boolean };
+type MessagesProps = Props & { welcomeMessageEnabled: boolean, toolOutputs: any[] };
 /**
  * This component is in charge of rendering the messages.
  */
 const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInternal(
-  { welcomeMessageEnabled, onRetry, messages, streamingMessage, startOption, onStartOptionChange },
+  { welcomeMessageEnabled, onRetry, messages, streamingMessage, startOption, onStartOptionChange, toolOutputs },
   ref
 ) {
   const lastMessage = messages[messages.length - 1];
@@ -199,6 +203,7 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
           return (
             <MessageRow
               key={i}
+              toolOutputs={toolOutputs.filter((toolOutput) => toolOutput.messageIdx === i)}
               message={m}
               isLast={isLastInList && !streamingMessage}
               className={cn({

@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type CreateUser = {
-  fullname: string;
-  email?: string | null;
+    fullname: string;
+    email?: (string | null);
 };
+

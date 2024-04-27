@@ -4,7 +4,7 @@ import { useLongPress } from 'react-aria';
 
 import { Avatar } from '@/components/Avatar';
 import { LongPressMenu } from '@/components/LongPressMenu';
-import { MessageContent } from '@/components/MessageContent';
+import { MessageContent, ToolOutput } from '@/components/MessageContent';
 import { CopyToClipboardButton, CopyToClipboardIconButton } from '@/components/Shared';
 import { ReservedClasses } from '@/constants';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
@@ -18,6 +18,7 @@ import {
   isUserMessage,
 } from '@/types/message';
 import { cn } from '@/utils';
+import ToolContent from './ToolContent';
 
 type Props = {
   isLast: boolean;
@@ -26,13 +27,14 @@ type Props = {
   className?: string;
   onCopy?: VoidFunction;
   onRetry?: VoidFunction;
+  toolOutputs: ToolOutput[];
 };
 
 /**
  * Renders a single message row from the user or from our models.
  */
 const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal(
-  { message, delay = false, isLast, className = '', onCopy, onRetry },
+  { message, delay = false, isLast, className = '', onCopy, onRetry, toolOutputs },
   ref
 ) {
   const breakpoint = useBreakpoint();
@@ -146,6 +148,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
           <Avatar message={message} />
           <div className="flex w-full min-w-0 max-w-message flex-1 flex-col items-center gap-x-1 md:flex-row">
             <MessageContent isLast={isLast} message={message} onRetry={onRetry} />
+            <ToolContent toolOutputs={toolOutputs} />
             <div
               className={cn('flex h-full items-end justify-end self-end', {
                 'hidden md:invisible md:flex':

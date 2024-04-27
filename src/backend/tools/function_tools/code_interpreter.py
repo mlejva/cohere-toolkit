@@ -63,7 +63,7 @@ class CodeInterpreterFunctionTool(BaseFunctionTool):
     def to_langchain_tool(self) -> LangchainTool:
         tool = LangchainTool(
             name="code_interpreter",
-            description="Execute python code in a Jupyter notebook cell and returns any rich data (eg charts) as results, stdout, stderr, and error. Information about results will be in 'result' with square brackets [] around it.",
+            description="Execute python code in a Jupyter notebook cell and returns any rich data (eg charts) as results, with stdout, stderr, and error. The rich results are shown to user automatically, so don't link them.",
             func=self.langchain_call,
         )
         tool.args_schema = LangchainCodeInterpreterToolInput

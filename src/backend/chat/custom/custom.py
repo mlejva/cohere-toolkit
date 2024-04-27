@@ -62,6 +62,7 @@ class CustomChat(BaseChat):
 
                 outputs = [
                     {
+                        "messageIdx": len(chat_request.chat_history or []) + 1,
                         "outputs": tool_result["outputs"],
                         "tool": tool_result["call"].name,
                     }
@@ -86,9 +87,20 @@ class CustomChat(BaseChat):
                 # with the same document reference during the stream, instead of the StreamToolResult I would expect.
                 chat_request.tools = None
                 if kwargs.get("stream", True) is True:
+                    # Only works for the current code interpreter tool
                     return deployment_model.invoke_chat_stream(
                         chat_request,
-                        tool_results=tool_results,
+                        tool_results=[
+                            {
+                                "call": tool_result["call"],
+                                "outputs": [
+                                    {"type": result["type"], "data": result["data"]}
+                                    for output in tool_result["outputs"]
+                                    for result in output["results"]
+                                ],
+                            }
+                            for tool_result in tool_results
+                        ],
                     )
                 else:
                     return deployment_model.invoke_chat(

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { ManagedTool, useCohereClient } from '@/cohere-client';
+import { ToolOutput } from '@/components/MessageContent';
 
 export const useListTools = (enabled: boolean = true) => {
   const client = useCohereClient();
@@ -11,5 +12,20 @@ export const useListTools = (enabled: boolean = true) => {
     },
     refetchOnWindowFocus: false,
     enabled,
+  });
+};
+
+export const useListToolOutputs = (conversationId: string | undefined = "", enabled: boolean = true) => {
+  const client = useCohereClient();
+  return useQuery<ToolOutput[], Error>({
+    queryKey: ['tools'],
+    queryFn: async () => {
+      return await client.toolOutputConversationsConversationIdToolOutputsGet({ conversationId });
+    },
+    refetchOnWindowFocus: false,
+    enabled,
+    refetchInterval: 1000,
+    refetchOnMount: true,
+    refetchIntervalInBackground: true,
   });
 };

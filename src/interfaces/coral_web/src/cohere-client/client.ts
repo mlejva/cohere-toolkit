@@ -14,6 +14,7 @@ import {
   UploadFile,
 } from '.';
 import { mapToChatRequest } from './mappings';
+import { ToolOutput } from '@/components/MessageContent';
 
 export class CohereNetworkError extends Error {
   public status: number;
@@ -137,6 +138,27 @@ export class CohereClient {
     }
 
     return body as ListFile[];
+
+  }
+  public async toolOutputConversationsConversationIdToolOutputsGet({ conversationId }: { conversationId: string }): Promise<ToolOutput[]> {
+    const response = await this.fetch(
+      `${this.getEndpoint('conversations')}/${conversationId}/tool_outputs`,
+      {
+        method: 'GET',
+        headers: this.getHeaders(),
+      }
+    );
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
+
+    return body as ToolOutput[];
   }
 
   public async chat({

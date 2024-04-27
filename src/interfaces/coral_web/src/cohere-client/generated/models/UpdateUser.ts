@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UpdateUser = {
-  fullname: string;
-  email?: string | null;
+    fullname: string;
+    email?: (string | null);
 };
+

@@ -16,6 +16,18 @@ import {
 } from '@/types/message';
 import { cn } from '@/utils';
 
+
+export interface ToolOutput {
+  messageIdx: number;
+  outputs: {
+    results: {
+      type: 'image/png' | 'text/plain',
+      data: string,
+    }[];
+  }[];
+  tool: 'Code_Interpreter'
+}
+
 type Props = {
   isLast: boolean;
   message: ChatMessage;
