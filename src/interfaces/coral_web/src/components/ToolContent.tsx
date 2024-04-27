@@ -5,7 +5,6 @@ interface Props {
 }
 
 function ToolContent({ toolOutputs = [] }: Props) {
-  console.log("toolOutputs", t)
   return (
     <>
       {toolOutputs.map((output, index) => (
