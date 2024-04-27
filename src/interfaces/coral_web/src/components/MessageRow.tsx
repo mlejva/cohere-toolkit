@@ -146,7 +146,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
       >
         <div className="flex w-full gap-x-2">
           <Avatar message={message} />
-          <div className="flex w-full min-w-0 max-w-message flex-1 flex-col items-center gap-x-1 md:flex-row">
+          <div className="flex w-full min-w-0 max-w-message flex-1 flex-col items-center gap-x-1">
             <MessageContent isLast={isLast} message={message} onRetry={onRetry} />
             <ToolContent toolOutputs={toolOutputs} />
             <div
