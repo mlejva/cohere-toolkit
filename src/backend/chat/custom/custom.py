@@ -13,12 +13,17 @@ from backend.services.logger import get_logger
 from backend.tools.retrieval.collate import combine_documents
 
 
+tool_outputs: dict[str, list[dict]] = {}
+
+
 class CustomChat(BaseChat):
     """Custom chat flow not using integrations for models."""
 
     logger = get_logger()
 
-    def chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    def chat(
+        self, chat_request: CohereChatRequest, conversation_id: str, **kwargs: Any
+    ) -> Any:
         """
         Chat flow for custom models.
 
@@ -53,6 +58,32 @@ class CustomChat(BaseChat):
                     chat_request.message, function_tools, deployment_model
                 )
 
+                print("Tool Results", tool_results)
+
+                outputs = [
+                    {
+                        "outputs": tool_result["outputs"],
+                        "tool": tool_result["call"].name,
+                    }
+                    for tool_result in tool_results
+                ]
+                print("Outputs", outputs)
+
+                if conversation_id in tool_outputs:
+                    tool_outputs[conversation_id].extend(outputs)
+                else:
+                    tool_outputs[conversation_id] = outputs
+
+                # TODO: The models looks like it is not reacting to the tool output correctly.
+                # TODO: We should return all fields of the tool result to the frontend via event stream.
+
+                # print("Tool Results", tool_results)
+
+                # TODO: Why are the tools in the chat request removed?
+                # TODO: We pass the tool outputs to the LLM so it can react to it — what is the correct format?
+                # TODO: When we pass the results of Code Interpreter as it is the LLM returns references
+                # to a "document" Code_Interpreter:0:0 in the final response and also sends "search-results"
+                # with the same document reference during the stream, instead of the StreamToolResult I would expect.
                 chat_request.tools = None
                 if kwargs.get("stream", True) is True:
                     return deployment_model.invoke_chat_stream(

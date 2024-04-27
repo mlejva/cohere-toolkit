@@ -99,6 +99,7 @@ async def chat_stream(
                 deployment_name=deployment_name,
                 file_paths=file_paths,
                 managed_tools=managed_tools,
+                conversation_id=conversation_id,
             ),
             response_message,
             conversation_id,

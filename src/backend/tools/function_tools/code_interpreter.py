@@ -3,7 +3,7 @@ from typing import Any
 
 from langchain_core.tools import Tool as LangchainTool
 from pydantic.v1 import BaseModel, Field
-from e2b_code_interpreter import CodeInterpreter
+from e2b_code_interpreter import CodeInterpreter, Result, Execution
 
 from backend.tools.function_tools.base import BaseFunctionTool
 
@@ -32,12 +32,25 @@ class CodeInterpreterFunctionTool(BaseFunctionTool):
         # because it has a full Jupyter server running inside the sandbox.
         # What's the best way to send this data back to frontend and render them in chat?
 
-
         code = parameters.get("code", "")
         print("Code to run", code)
-        execution = self.code_interpreter.notebook.exec_cell(code)
+        execution: Execution = self.code_interpreter.notebook.exec_cell(code)
+
+        print("Result of code run", execution)
+
+        artifacts = [
+            {"type": mime_type, "data": data}
+            for result in execution.results
+            for mime_type, data in result.raw.items()
+        ]
+
+        artifact_list = ", ".join([a["type"] for a in artifacts])
+        print("Artifacts", artifact_list)
+
+        # TODO: We may need to serialize the fields so they can be streamed.
+        # TODO: We should make it so that the info about results can be send to LLM too — just sending the Base64 encoding of the artifact is useless.
         return {
-            "results": execution.results,
+            "results": artifacts,
             "stdout": execution.logs.stdout,
             "stderr": execution.logs.stderr,
             "error": execution.error,
@@ -50,7 +63,7 @@ class CodeInterpreterFunctionTool(BaseFunctionTool):
     def to_langchain_tool(self) -> LangchainTool:
         tool = LangchainTool(
             name="code_interpreter",
-            description="Execute python code in a Jupyter notebook cell and returns any rich data (eg charts), stdout, stderr, and error.",
+            description="Execute python code in a Jupyter notebook cell and returns any rich data (eg charts) as results, stdout, stderr, and error. Information about results will be in 'result' with square brackets [] around it.",
             func=self.langchain_call,
         )
         tool.args_schema = LangchainCodeInterpreterToolInput

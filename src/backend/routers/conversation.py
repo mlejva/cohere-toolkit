@@ -18,6 +18,7 @@ from backend.schemas.conversation import (
 from backend.schemas.file import DeleteFile, File, ListFile, UpdateFile, UploadFile
 from backend.services.file.service import FileService
 from backend.services.request_validators import validate_user_header
+from backend.chat.custom.custom import tool_outputs
 
 router = APIRouter(
     prefix="/conversations",
@@ -277,6 +278,16 @@ async def upload_file(
     upload_file = file_crud.create_file(session, upload_file)
 
     return upload_file
+
+
+@router.get("/{conversation_id}/tool_outputs", response_model=list[dict])
+async def tool_output(
+    conversation_id: str, session: DBSessionDep, request: Request
+) -> list[dict]:
+    """
+    List all tool outputs from a conversation.
+    """
+    return tool_outputs.get(conversation_id, [])
 
 
 @router.get("/{conversation_id}/files", response_model=list[ListFile])
