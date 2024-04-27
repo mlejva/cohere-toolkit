@@ -62,7 +62,7 @@ class CustomChat(BaseChat):
 
                 outputs = [
                     {
-                        "messageIdx": len(chat_request.chat_history or []) + 1,
+                        "messageIdx": len(chat_request.chat_history or []),
                         "outputs": tool_result["outputs"],
                         "tool": tool_result["call"].name,
                     }

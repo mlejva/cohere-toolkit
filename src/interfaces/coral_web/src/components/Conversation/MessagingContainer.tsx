@@ -180,6 +180,8 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
 ) {
   const lastMessage = messages[messages.length - 1];
 
+  console.log('toolOutputs', toolOutputs)
+
   return (
     <div className="mt-auto flex flex-col gap-y-4 px-4 py-6 md:gap-y-6" ref={ref}>
       <WelcomeMessage
@@ -190,7 +192,7 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
         onStartOptionChange={onStartOptionChange}
       />
 
-      {messages.map((m, i) => {
+      {messages.map((m, i, ms) => {
         const isLastInList = i === messages.length - 1;
 
         if (isNotificationMessage(m) && isLastInList) {
@@ -203,7 +205,22 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
           return (
             <MessageRow
               key={i}
-              toolOutputs={toolOutputs.filter((toolOutput) => toolOutput.messageIdx === i)}
+              toolOutputs={toolOutputs.filter((toolOutput) => {
+                let idx = toolOutput.messageIdx + 1
+
+                const currentIdx = ms.slice(0, i + 1).reduce((acc, m) => {
+                  if (m.type === MessageType.BOT && !m.error) {
+                    acc++
+                  }
+                  return acc
+                }, 0)
+
+                if (m.type === MessageType.BOT && !m.error) {
+                  console.log(`current-${i}`, idx, currentIdx)
+                }
+
+                return currentIdx === idx && m.type === MessageType.BOT && !m.error
+              })}
               message={m}
               isLast={isLastInList && !streamingMessage}
               className={cn({
@@ -223,11 +240,30 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
       })}
 
       {streamingMessage && (
-        <MessageRow message={streamingMessage} isLast={true} onRetry={onRetry} />
+        <MessageRow message={streamingMessage} isLast={true} onRetry={onRetry}
+          toolOutputs={toolOutputs.filter((toolOutput) => {
+            let idx = toolOutput.messageIdx + 1
+
+            const currentIdx = messages.reduce((acc, m) => {
+              if (m.type === MessageType.BOT && !m.error) {
+                acc++
+              }
+              return acc
+            }, 1)
+
+            console.log('last', idx, currentIdx, streamingMessage.type === MessageType.BOT)
+
+            return currentIdx === idx && streamingMessage.type === MessageType.BOT && !streamingMessage.error
+          })}
+        />
       )}
 
       {lastMessage && isNotificationMessage(lastMessage) && messages.length > 1 && (
-        <Notification message={lastMessage.text} show={lastMessage.show} shouldAnimate />
+        <Notification
+          message={lastMessage.text}
+          show={lastMessage.show}
+          shouldAnimate
+        />
       )}
     </div>
   );

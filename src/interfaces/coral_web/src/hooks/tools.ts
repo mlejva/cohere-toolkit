@@ -17,7 +17,8 @@ export const useListTools = (enabled: boolean = true) => {
 
 export const useListToolOutputs = (conversationId: string | undefined = "", enabled: boolean = true) => {
   const client = useCohereClient();
-  return useQuery<ToolOutput[], Error>({
+
+  const result = useQuery<ToolOutput[], Error>({
     queryKey: ['tools'],
     queryFn: async () => {
       return await client.toolOutputConversationsConversationIdToolOutputsGet({ conversationId });
@@ -26,6 +27,13 @@ export const useListToolOutputs = (conversationId: string | undefined = "", enab
     enabled,
     refetchInterval: 1000,
     refetchOnMount: true,
+    refetchOnReconnect: true,
     refetchIntervalInBackground: true,
   });
+
+  return conversationId ? result : {
+    data: [],
+    isLoading: false,
+    isError: false,
+  }
 };

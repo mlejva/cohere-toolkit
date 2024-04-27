@@ -23,7 +23,7 @@ export interface ToolOutput {
     results: {
       type: 'image/png' | 'text/plain',
       data: string,
-    }[];
+    }[]
   }[];
   tool: 'Code_Interpreter'
 }

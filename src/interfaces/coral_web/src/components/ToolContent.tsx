@@ -9,12 +9,14 @@ function ToolContent({ toolOutputs = [] }: Props) {
 
   // toolOutputs = t as any
 
+  console.log(toolOutputs)
+
   return (
     <>
       {toolOutputs.map((output, index) => (
         <div key={index} className="flex flex-col gap-2 w-full md:w-[60%] py-4">
-          {output.outputs.map(r =>
-            r.results.map(r =>
+          {output?.outputs?.map(r =>
+            r?.results?.map(r =>
               <>
                 {
                   r.type === 'image/png' && (
